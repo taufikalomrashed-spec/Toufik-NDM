@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#ff7a00">
+<title>ToonBD</title>
+<script>
+(function(){
+  var svg="<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#ff7a00'/><stop offset='1' stop-color='#ff3d00'/></linearGradient></defs><rect width='512' height='512' rx='96' fill='url(#g)'/><text x='256' y='300' font-size='220' font-weight='900' fill='#fff' text-anchor='middle' font-family='sans-serif'>TBD</text></svg>";
+  var icon="data:image/svg+xml;utf8,"+encodeURIComponent(svg);
+  var m={name:"ToonBD",short_name:"ToonBD",start_url:location.href.split("#")[0],display:"standalone",background_color:"#0c0c10",theme_color:"#ff7a00",icons:[{src:icon,sizes:"512x512",type:"image/svg+xml",purpose:"any"}]};
+  var a=document.createElement("link");a.rel="manifest";a.href=URL.createObjectURL(new Blob([JSON.stringify(m)],{type:"application/json"}));document.head.appendChild(a);
+  var b=document.createElement("link");b.rel="icon";b.href=icon;document.head.appendChild(b);
+})();
+</script>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{--bg:#f5f6fa;--card:#fff;--text:#1b1b22;--muted:#7a7f8c;--acc:#ff7a00;--acc2:#ff3d00;--bd:#e3e5ec}
+body.dark{--bg:#0c0c10;--card:#17171e;--text:#f0f0f5;--muted:#8b8fa0;--bd:#262631}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Noto Sans Bengali","Noto Sans Devanagari",sans-serif;padding-bottom:40px}
+header{position:sticky;top:0;z-index:20;background:var(--card);border-bottom:1px solid var(--bd);padding:10px 12px}
+.top{display:flex;align-items:center;gap:8px}
+.logo{font-weight:900;font-size:20px;color:var(--acc);display:flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap}
+.logo span{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;padding:2px 8px;border-radius:8px;font-size:14px}
+.top .sp{flex:1}
+select,button,input,textarea{font:inherit;color:inherit}
+select{background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:6px;max-width:110px}
+.ib{background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:6px 10px;cursor:pointer}
+.search{margin-top:10px}
+.search input{width:100%;padding:10px 14px;border-radius:12px;border:1px solid var(--bd);background:var(--bg);outline:none}
+.search input:focus{border-color:var(--acc)}
+.chs{display:flex;gap:8px;padding:10px 12px}
+.chs a{flex:1;text-align:center;text-decoration:none;color:#fff;padding:10px;border-radius:12px;font-weight:700;font-size:14px}
+.ch1{background:linear-gradient(135deg,#ff7a00,#ff3d00)}
+.ch2{background:linear-gradient(135deg,#00a86b,#007a4d)}
+.tabs,.chips{display:flex;gap:8px;overflow-x:auto;padding:4px 12px;scrollbar-width:none}
+.tabs button,.chips button{white-space:nowrap;border:1px solid var(--bd);background:var(--card);padding:8px 14px;border-radius:20px;cursor:pointer;font-weight:600}
+.tabs button.on{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;border-color:transparent}
+.chips button{font-size:13px;padding:6px 12px}
+.chips button.on{border-color:var(--acc);color:var(--acc)}
+h2{font-size:16px;margin:16px 12px 8px}
+.row{display:flex;gap:10px;overflow-x:auto;padding:0 12px;scrollbar-width:none}
+.row .card{min-width:160px;max-width:160px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;padding:0 12px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;overflow:hidden;cursor:pointer;transition:.15s}
+.card:active{transform:scale(.97)}
+.th{position:relative;aspect-ratio:16/10;background:#222}
+.th img{width:100%;height:100%;object-fit:cover;display:block}
+.hd{position:absolute;top:6px;right:6px;background:var(--acc);color:#fff;font-size:11px;font-weight:800;padding:1px 6px;border-radius:6px}
+.fv{position:absolute;top:6px;left:6px;font-size:18px}
+.pb{position:absolute;bottom:0;left:0;height:3px;background:var(--acc)}
+.ci{padding:8px}
+.ci b{display:block;font-size:13px;line-height:1.3;max-height:34px;overflow:hidden}
+.ci small{color:var(--muted);font-size:11px;display:block;margin-top:3px}
+.empty{text-align:center;color:var(--muted);padding:40px 12px;grid-column:1/-1}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:50;display:none;align-items:flex-end;justify-content:center}
+.modal.on{display:flex}
+.sheet{background:var(--card);width:100%;max-width:640px;max-height:92vh;overflow-y:auto;border-radius:20px 20px 0 0;padding:14px}
+.sheet .th{border-radius:12px;overflow:hidden}
+.sheet h3{margin:10px 0 4px}
+.meta{color:var(--muted);font-size:13px;margin-bottom:10px}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.btn{flex:1;min-width:110px;text-align:center;text-decoration:none;border:0;padding:11px;border-radius:12px;cursor:pointer;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--acc),var(--acc2))}
+.btn.alt{background:var(--bg);color:var(--text);border:1px solid var(--bd)}
+.btn.red{background:#d32f2f}
+.stars span{font-size:28px;cursor:pointer;color:#bbb}
+.stars span.on{color:#ffc107}
+.cm{border-top:1px solid var(--bd);padding:8px 0;font-size:14px}
+.cm small{color:var(--muted)}
+textarea,.f input,.f select{width:100%;padding:10px;border-radius:10px;border:1px solid var(--bd);background:var(--bg);margin-top:6px;max-width:none}
+.f label{display:block;margin-top:8px;font-size:13px;color:var(--muted)}
+.x{float:right;font-size:22px;cursor:pointer}
+.al{display:flex;justify-content:space-between;align-items:center;gap:8px;border-bottom:1px solid var(--bd);padding:8px 0;font-size:14px}
+.sel{width:100%;padding:10px;border-radius:10px;border:1px solid var(--bd);background:var(--bg);color:inherit;font-weight:700;max-width:none;margin:4px 0 10px}
+.eg{display:grid;grid-template-columns:repeat(auto-fill,minmax(54px,1fr));gap:8px;margin:6px 0 12px}
+.eg button{padding:12px 0;border-radius:10px;border:1px solid var(--bd);background:var(--card);font-weight:700;cursor:pointer;color:inherit}
+.eg button.on{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;border-color:transparent}
+details{border:1px solid var(--bd);border-radius:12px;margin:8px 0;padding:8px 10px}
+summary{font-weight:700;cursor:pointer;padding:4px 0}
+.er{padding:10px 4px;border-top:1px solid var(--bd);cursor:pointer;font-size:14px}
+.er small{color:var(--muted);display:block;margin-top:2px}
+footer{text-align:center;color:var(--muted);font-size:12px;margin-top:30px}
+footer a{color:var(--acc);cursor:pointer}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:10px 18px;border-radius:20px;opacity:0;transition:.3s;z-index:99;pointer-events:none}
+#toast.on{opacity:1}
+#pm{z-index:60}#vp{width:100%;max-height:60vh;background:#000;border-radius:12px;display:block}.f input[type=file]{padding:8px}
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <div class="logo" onclick="go('all')"><span>TOON</span>BD</div>
+    <div class="sp"></div>
+    <select id="lang" onchange="setLang(this.value)">
+      <option value="bn">বাংলা</option><option value="en">English</option><option value="hi">हिन्दी</option>
+    </select>
+    <button class="ib" id="dm" onclick="toggleDark()">🌙</button>
+  </div>
+  <div class="search"><input id="q" oninput="render()" placeholder=""></div>
+</header>
+
+<div class="chs">
+  <a class="ch1" href="https://t.me/naruto58n" target="_blank" rel="noopener" onclick="return chLink(this)" data-t="hindiCh"></a>
+  <a class="ch2" href="https://t.me/Narutobangla32" target="_blank" rel="noopener" onclick="return chLink(this)" data-t="banglaCh"></a>
+</div>
+
+<div class="tabs" id="tabs"></div>
+<div class="chips" id="chips" style="margin-top:10px"></div>
+
+<div id="contBox"><h2 data-t="cont"></h2><div class="row" id="cont"></div></div>
+<div id="trendBox"><h2 data-t="trend"></h2><div class="row" id="trend"></div></div>
+<h2 id="gt"></h2>
+<div class="grid" id="grid"></div>
+
+<footer>© ToonBD · <a onclick="openAdmin()">Admin</a></footer>
+
+<div class="modal" id="m"><div class="sheet" id="sheet"></div></div>
+<div class="modal" id="am"><div class="sheet" id="asheet"></div></div>
+<div class="modal" id="pm"><div class="sheet" id="psheet"></div></div>
+<div id="toast"></div>
+
+<!-- Supabase সেটআপ SQL: Admin প্যানেল থেকে ইমেইল বসিয়ে কপি করা যায় -->
+<script type="text/plain" id="sqlsrc">
+-- =====================================================================
+-- ToonBD — Supabase সেটআপ (Supabase → SQL Editor এ পুরোটা পেস্ট করে Run)
+-- বারবার চালালেও সমস্যা নেই।
+--
+-- চালানোর আগে:
+--   1) Admin প্যানেলে ইমেইল দিয়ে "SQL তৈরি" চাপলে এই ইমেইল নিজে থেকে বসে যায়।
+--   2) Authentication → Providers → Email এ "Allow new users to sign up" বন্ধ করুন।
+--   3) Authentication → Users → Add user দিয়ে ঐ ইমেইল + পাসওয়ার্ডে অ্যাডমিন ইউজার বানান।
+-- তারপর Project Settings → API থেকে URL ও anon key কপি করে index.html এর SB_URL / SB_KEY তে বসান।
+-- =====================================================================
+
+-- ---------- অ্যাডমিন চেক (শুধু এই ইমেইল লিখতে/মুছতে পারবে) ----------
+create or replace function public.is_admin() returns boolean
+language sql stable as $$
+  select coalesce(auth.jwt() ->> 'email', '') = lower('YOUR_ADMIN_EMAIL@example.com')
+$$;
+
+grant execute on function public.is_admin() to anon, authenticated;
+
+-- ---------- পর্ব/ভিডিও ----------
+create table if not exists public.eps (
+  id    bigint primary key,
+  data  jsonb  not null,
+  views bigint not null default 0
+);
+alter table public.eps enable row level security;
+
+drop policy if exists eps_read   on public.eps;
+drop policy if exists eps_insert on public.eps;
+drop policy if exists eps_update on public.eps;
+drop policy if exists eps_delete on public.eps;
+
+-- সবাই পড়তে পারবে, তবে লুকানো (hidden) পর্ব শুধু অ্যাডমিন দেখবে
+create policy eps_read   on public.eps for select
+  using ( coalesce((data ->> 'hidden')::boolean, false) = false or public.is_admin() );
+create policy eps_insert on public.eps for insert with check ( public.is_admin() );
+create policy eps_update on public.eps for update using ( public.is_admin() ) with check ( public.is_admin() );
+create policy eps_delete on public.eps for delete using ( public.is_admin() );
+
+-- ভিউ কাউন্ট (যে কেউ ডাকতে পারে, শুধু +১ করে)
+create or replace function public.inc_view(eid bigint) returns void
+language sql security definer set search_path = public as $$
+  update public.eps set views = views + 1 where id = eid;
+$$;
+grant execute on function public.inc_view(bigint) to anon, authenticated;
+
+-- ---------- কমেন্ট (সবার জন্য শেয়ার্ড) ----------
+create table if not exists public.comments (
+  id         bigint generated always as identity primary key,
+  eid        bigint not null references public.eps(id) on delete cascade,
+  name       text   not null check (char_length(name) between 1 and 30),
+  body       text   not null check (char_length(body) between 1 and 500),
+  created_at timestamptz not null default now()
+);
+create index if not exists comments_eid_idx on public.comments (eid, created_at desc);
+alter table public.comments enable row level security;
+
+drop policy if exists comments_read   on public.comments;
+drop policy if exists comments_insert on public.comments;
+drop policy if exists comments_delete on public.comments;
+
+create policy comments_read   on public.comments for select using ( true );
+create policy comments_insert on public.comments for insert with check ( true );   -- দৈর্ঘ্য চেক টেবিলেই আছে
+create policy comments_delete on public.comments for delete using ( public.is_admin() );
+
+-- ---------- রেটিং (এক ডিভাইস = এক পর্বে একটা রেটিং) ----------
+create table if not exists public.ratings (
+  eid   bigint not null references public.eps(id) on delete cascade,
+  uid   text   not null check (char_length(uid) between 8 and 64),
+  stars int    not null check (stars between 1 and 5),
+  primary key (eid, uid)
+);
+alter table public.ratings enable row level security;   -- সরাসরি টেবিল খোলা নেই; শুধু নিচের ফাংশন/ভিউ দিয়ে
+
+create or replace function public.rate_ep(p_eid bigint, p_uid text, p_stars int) returns void
+language sql security definer set search_path = public as $$
+  insert into public.ratings (eid, uid, stars) values (p_eid, p_uid, p_stars)
+  on conflict (eid, uid) do update set stars = excluded.stars;
+$$;
+grant execute on function public.rate_ep(bigint, text, int) to anon, authenticated;
+
+-- গড় রেটিং ও সংখ্যা (ভিউ মালিকের অধিকারে চলে, তাই ratings টেবিল ব্যক্তিগতই থাকে)
+create or replace view public.rating_stats as
+  select eid, round(avg(stars)::numeric, 2) as avg, count(*)::int as cnt
+  from public.ratings group by eid;
+grant select on public.rating_stats to anon, authenticated;
+
+-- ---------- ভিডিও/থাম্বনেইল আপলোড (Storage: media বাকেট) ----------
+insert into storage.buckets (id, name, public) values ('media', 'media', true)
+on conflict (id) do update set public = true;
+
+drop policy if exists media_read   on storage.objects;
+drop policy if exists media_insert on storage.objects;
+drop policy if exists media_update on storage.objects;
+drop policy if exists media_delete on storage.objects;
+
+create policy media_read   on storage.objects for select using ( bucket_id = 'media' );
+create policy media_insert on storage.objects for insert with check ( bucket_id = 'media' and public.is_admin() );
+create policy media_update on storage.objects for update using ( bucket_id = 'media' and public.is_admin() );
+create policy media_delete on storage.objects for delete using ( bucket_id = 'media' and public.is_admin() );
+
+-- নোট: বড় ভিডিও আপলোডের জন্য Storage → Settings এ "Global file size limit" বাড়াতে হতে পারে
+--      (ফ্রি প্ল্যানে সাধারণত সর্বোচ্চ ৫০ MB)।
+</script>
+
+<script>
+/* ================= CONFIG ================= */
+// অ্যাডমিন পাসওয়ার্ড কোডে খোলা থাকে না — শুধু তার SHA-256 হ্যাশ থাকে।
+// ডিফল্ট পাসওয়ার্ড: Naruto@BD#2026  ← অবশ্যই বদলান!
+// বদলানোর নিয়ম: Admin প্যানেলের "নতুন পাসওয়ার্ডের হ্যাশ তৈরি" অংশ থেকে লাইনটা কপি করে নিচের লাইনের জায়গায় বসান।
+// দ্রষ্টব্য: Supabase ছাড়া এটা শুধু ব্রাউজার-লেভেল আড়াল। আসল সুরক্ষার জন্য Supabase ব্যবহার করুন।
+const ADMIN_HASH = "448902f3bb9e837cafd6a9ae2eb868cb67e71ab55baf8f07b00c156f6868cf18";
+const SALT = "nbd-v1:";
+async function sha256(s){
+  if(!(window.crypto&&crypto.subtle)) throw 0;
+  const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(SALT+s));
+  return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("");
+}
+const TABS = ["NARUTO","MOVIES","NATOK","ANIME","CARTOON","DRAMA","SERIES","FUNNY VIDEO","SHORT REEL","COMING SOON"];
+// যেগুলোতে সিরিজ বক্স (সিজন + পর্ব নম্বর) থাকবে
+const GROUPED_TABS = ["NARUTO","NATOK","ANIME","CARTOON","DRAMA","SERIES"];
+// যেগুলোতে সিজন/পর্ব থাকবে না (একটা একটা ভিডিও)
+const FLAT_TABS = ["MOVIES","FUNNY VIDEO","SHORT REEL"];
+
+/* ================= LANGUAGES ================= */
+const T = {
+bn:{search:"🔍 Episode খুঁজুন...",all:"সব",fav:"❤️ পছন্দের",hist:"🕘 হিস্ট্রি",tr:"🔥 ট্রেন্ডিং",cont:"▶️ আবার দেখুন",trend:"🔥 সবচেয়ে বেশি দেখা",watch:"▶ WATCH NOW",dl:"⬇ Download",share:"📤 শেয়ার",copy:"🔗 লিংক কপি",copied:"লিংক কপি হয়েছে ✅",rate:"রেটিং দিন",cm:"কমেন্ট",write:"কমেন্ট লিখুন...",post:"পোস্ট",hindiCh:"📢 HINDI Channel",banglaCh:"📢 BANGLA Channel",empty:"কিছু পাওয়া যায়নি 😕",s:"সিজন",e:"পর্ব",views:"ভিউ",favAdd:"❤️ Save",favDel:"💔 Remove",admin:"🔐 Admin Panel",pass:"পাসওয়ার্ড",login:"ঢুকুন",wrong:"ভুল পাসওয়ার্ড",add:"➕ নতুন পর্ব যোগ",ttl:"টাইটেল",season:"সিজন",ep:"পর্ব নম্বর",cat:"ক্যাটেগরি",thumb:"থাম্বনেইল লিংক (ছবি)",wurl:"Watch লিংক",durl:"Download লিংক",save:"সেভ করুন",del:"🗑 ডিলিট",list:"সব পর্ব",sure:"ডিলিট করবেন?",done:"হয়েছে ✅",logout:"বের হন"},
+en:{search:"🔍 Search episodes...",all:"All",fav:"❤️ Favorites",hist:"🕘 History",tr:"🔥 Trending",cont:"▶️ Continue Watching",trend:"🔥 Most Watched",watch:"▶ WATCH NOW",dl:"⬇ Download",share:"📤 Share",copy:"🔗 Copy Link",copied:"Link copied ✅",rate:"Rate this",cm:"Comments",write:"Write a comment...",post:"Post",hindiCh:"📢 HINDI Channel",banglaCh:"📢 BANGLA Channel",empty:"Nothing found 😕",s:"Season",e:"Episode",views:"views",favAdd:"❤️ Save",favDel:"💔 Remove",admin:"🔐 Admin Panel",pass:"Password",login:"Login",wrong:"Wrong password",add:"➕ Add Episode",ttl:"Title",season:"Season",ep:"Episode No",cat:"Category",thumb:"Thumbnail URL",wurl:"Watch URL",durl:"Download URL",save:"Save",del:"🗑 Delete",list:"All episodes",sure:"Delete?",done:"Done ✅",logout:"Logout"},
+hi:{search:"🔍 एपिसोड खोजें...",all:"सभी",fav:"❤️ पसंदीदा",hist:"🕘 हिस्ट्री",tr:"🔥 ट्रेंडिंग",cont:"▶️ देखना जारी रखें",trend:"🔥 सबसे ज़्यादा देखे गए",watch:"▶ WATCH NOW",dl:"⬇ Download",share:"📤 शेयर",copy:"🔗 लिंक कॉपी",copied:"लिंक कॉपी हो गया ✅",rate:"रेटिंग दें",cm:"कमेंट",write:"कमेंट लिखें...",post:"पोस्ट",hindiCh:"📢 HINDI Channel",banglaCh:"📢 BANGLA Channel",empty:"कुछ नहीं मिला 😕",s:"सीज़न",e:"एपिसोड",views:"व्यू",favAdd:"❤️ Save",favDel:"💔 Remove",admin:"🔐 Admin Panel",pass:"पासवर्ड",login:"लॉगिन",wrong:"गलत पासवर्ड",add:"➕ नया एपिसोड",ttl:"टाइटल",season:"सीज़न",ep:"एपिसोड नंबर",cat:"कैटेगरी",thumb:"थंबनेल लिंक",wurl:"Watch लिंक",durl:"Download लिंक",save:"सेव करें",del:"🗑 डिलीट",list:"सभी एपिसोड",sure:"डिलीट करें?",done:"हो गया ✅",logout:"लॉगआउट"}
+};
+
+/* ================= STORAGE ================= */
+const $ = s => document.querySelector(s);
+const ls = (k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}};
+const sv = (k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{try{toast("⚠️ স্টোরেজ ভরে গেছে — ডেটা সেভ হয়নি (Supabase ব্যবহার করুন)")}catch{}}};
+const ph = t => "data:image/svg+xml;utf8,"+encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='320' height='200'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#ff7a00'/><stop offset='1' stop-color='#4a1d00'/></linearGradient></defs><rect width='320' height='200' fill='url(#g)'/><text x='160' y='110' font-size='26' fill='white' text-anchor='middle' font-family='sans-serif' font-weight='bold'>${(t||'NARUTO').replace(/[<&>']/g,'')}</text></svg>`).replace(/'/g,"%27");
+
+let lang = ls("lang","bn"), dark = ls("dark",true), tab = "NARUTO", chip = "all";
+let eps  = ls("eps",null) || [];
+let favs = ls("favs",[]), hist = ls("hist",[]), rates = ls("rates",{}), cms = ls("cms",{}), prog = ls("prog",{}), myr = ls("myr",{}), pos = ls("pos",{}), dels = ls("dels",[]);
+let isAdmin = ls("isAdmin",false);
+// প্রতিটি ডিভাইসের আলাদা আইডি (সার্ভারে রেটিং গোনার জন্য, এক ডিভাইস = একটা রেটিং)
+const UID = (()=>{let u=ls("uid",null); if(!u){u=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():String(Math.random()).slice(2)+Date.now(); sv("uid",u)} return u})();
+let rstat = {}; // সার্ভার থেকে আসা রেটিং: {epId:{avg,cnt}}
+const LN = {bn:"বাংলা",hi:"हिन्दी",en:"English"};
+// পুরনো ডেটা মাইগ্রেট: watch/dl এখন {bn, hi} অবজেক্ট
+function normalize(){
+  eps=eps.filter(e=>!(/^Sample (Episode|Movie) \d+$/.test(e.title)&&!(e.watch&&(e.watch.bn||e.watch.hi||(typeof e.watch==="string"&&e.watch)))));
+  eps.forEach(e=>{
+  e.hidden=!!e.hidden;
+  if(typeof e.watch!=="object"||!e.watch) e.watch={bn:e.watch||"",hi:e.watch||""};
+  if(typeof e.dl!=="object"||!e.dl) e.dl={bn:e.dl||"",hi:e.dl||""};
+  if(!e.show) e.show=e.title;
+  if(!e.file) e.file={}; if(!e.subs) e.subs={};
+  e.views=+e.views||0; e.date=+e.date||Date.now(); e.season=+e.season||null; e.ep=+e.ep||null;
+  // পুরনো মুভি (যেগুলোতে অটো সিজন ১/পর্ব ১ বসে গিয়েছিল) থেকে সেগুলো সরিয়ে দাও
+  if(!e.v2){ if(e.cat==="MOVIES"&&e.season===1&&e.ep===1){e.season=null;e.ep=null} e.v2=true }
+})}
+// সিজন/পর্ব লেবেল: যেটা দেওয়া আছে শুধু সেটাই দেখাবে
+function seLabel(e){const a=[]; if(e.season)a.push(t("s")+" "+e.season); if(e.ep)a.push(t("e")+" "+e.ep); return a.join(" · ")}
+normalize();
+// ভিজিটর শুধু লুকানো-নয় এমন ভিডিও দেখবে; অ্যাডমিন সব দেখবে
+function V(){return eps.filter(e=>isAdmin||!e.hidden)}
+function mergeEps(d){
+  d.forEach(x=>{if(x&&x.id&&x.title&&TABS.includes(x.cat)&&!dels.includes(x.id)&&!eps.some(e=>e.id===x.id))eps.push({...x,file:{}});
+    else if(x&&!isAdmin){const o=eps.find(e=>e.id===x.id); if(o)o.hidden=!!x.hidden}});
+  normalize();
+}
+function exportEps(){
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(eps,null,1)],{type:"application/json"}));
+  a.download="episodes.json"; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+function importEps(f){
+  if(!f)return;
+  f.text().then(s=>{const d=JSON.parse(s); if(!Array.isArray(d))throw 0; mergeEps(d); saveEps(); toast(t("done")); adminView(); render()}).catch(()=>toast("⚠️ Invalid JSON"));
+}
+// বর্তমান সাইট-ভাষা অনুযায়ী ভিডিও লিংক বের করে (English এ আগে Hindi)
+function lk(e,kind){
+  const o=e[kind]; if(!o) return "";
+  const pref = lang==="en" ? "hi" : lang;
+  if(o[pref]) return o[pref];
+  const alt = pref==="bn" ? "hi" : "bn";
+  if(o[alt]){ if(lang!=="en") toast("⚠️ "+LN[lang]+" ✗ → "+LN[alt]); return o[alt]; }
+  return "";
+}
+function langBadge(e){
+  const a=["bn","hi"].filter(l=>(e.watch&&e.watch[l])||(e.file&&e.file[l])).map(l=>l.toUpperCase());
+  return a.length ? "🎧 "+a.join(" · ") : "";
+}
+
+const t = k => T[lang][k] || k;
+const saveEps = ()=>sv("eps",eps);
+
+/* ================= UI HELPERS ================= */
+function toast(m){const e=$("#toast");e.textContent=m;e.classList.add("on");setTimeout(()=>e.classList.remove("on"),1800)}
+function applyLang(){
+  document.documentElement.lang = lang; $("#lang").value = lang;
+  $("#q").placeholder = t("search");
+  document.querySelectorAll("[data-t]").forEach(e=>e.textContent=t(e.dataset.t));
+  $("#dm").textContent = dark ? "☀️" : "🌙";
+}
+function setLang(l){lang=l;sv("lang",l);applyLang();buildChips();render()}
+function toggleDark(){dark=!dark;sv("dark",dark);document.body.classList.toggle("dark",dark);applyLang()}
+function fmtDate(ts){const d=new Date(ts);return d.toLocaleDateString()+" "+d.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}
+function avg(id){
+  if(SB_ON&&rstat[id]) return (+rstat[id].avg).toFixed(1);
+  const r=rates[id];return r&&r.length?(r.reduce((a,b)=>a+b,0)/r.length).toFixed(1):"–"
+}
+function rcount(id){return SB_ON&&rstat[id]?+rstat[id].cnt:(rates[id]||[]).length}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function safeUrl(u){try{const x=new URL(u,location.href);return /^(https?:|tg:)/.test(x.protocol)?x.href:""}catch{return ""}}
+function imgUrl(u){return /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+\/=]+$/.test(u||"")?u:safeUrl(u)}
+
+/* ================= TABS / CHIPS ================= */
+function buildTabs(){
+  $("#tabs").innerHTML = TABS.map(x=>`<button class="${x===tab?'on':''}" onclick="tab='${x}';buildTabs();render()">${x}</button>`).join("");
+}
+function buildChips(){
+  const c=[["all",t("all")],["fav",t("fav")],["hist",t("hist")],["tr",t("tr")]];
+  $("#chips").innerHTML = c.map(([k,l])=>`<button class="${k===chip?'on':''}" onclick="go('${k}')">${l}</button>`).join("");
+}
+function go(k){chip=k;buildChips();render()}
+
+/* ================= RENDER ================= */
+function card(e){
+  const p = prog[e.id]||0;
+  return `<div class="card" onclick="curShow=null;openEp(${e.id})">
+    <div class="th"><img loading="lazy" src="${esc(imgUrl(e.thumb)||ph(e.title))}" onerror="this.src='${ph(e.title)}'" alt="">
+    ${e.hidden?'<span class="hd" style="left:8px;right:auto;background:#444">🙈 লুকানো</span>':''}${e.hd?'<span class="hd">HD</span>':''}${favs.includes(e.id)?'<span class="fv">❤️</span>':''}
+    ${p?`<div class="pb" style="width:${p}%"></div>`:''}</div>
+    <div class="ci"><b>${esc(e.title)}</b>
+    ${seLabel(e)?`<small>${esc(seLabel(e))}</small>`:''}
+    <small>${fmtDate(e.date)}</small>
+    <small>${langBadge(e)}</small>
+    <small>👁 ${e.views} ${t("views")} · ⭐ ${avg(e.id)}</small></div></div>`;
+}
+function render(){
+  const q = $("#q").value.trim().toLowerCase();
+  // সার্চ ও পছন্দের/হিস্ট্রি সব ক্যাটেগরি থেকে দেখায়; বাকিগুলো বর্তমান ট্যাব থেকে
+  const allCats = !!q || chip==="fav" || chip==="hist";
+  let list = allCats ? V() : V().filter(e=>e.cat===tab);
+  if(q) list = list.filter(e=>(e.title+" "+(e.show||"")+(e.season?" s"+e.season:"")+(e.ep?" e"+e.ep:"")).toLowerCase().includes(q));
+  if(chip==="fav") list = list.filter(e=>favs.includes(e.id));
+  if(chip==="hist") list = hist.map(id=>list.find(e=>e.id===id)).filter(Boolean);
+  if(chip==="tr") list = [...list].sort((a,b)=>b.views-a.views);
+  if(chip==="all"||chip==="fav") list = [...list].sort((a,b)=>b.date-a.date);
+
+  // continue watching
+  const cw = Object.keys(prog).map(Number).filter(id=>prog[id]>0&&prog[id]<100).map(id=>V().find(e=>e.id===id)).filter(e=>e&&e.cat===tab);
+  $("#contBox").style.display = cw.length&&!q&&chip==="all" ? "" : "none";
+  $("#cont").innerHTML = cw.map(card).join("");
+  // trending
+  const tr = V().filter(e=>e.cat===tab).sort((a,b)=>b.views-a.views).filter(e=>e.views>0).slice(0,8);
+  $("#trendBox").style.display = tr.length&&!q&&chip==="all" ? "" : "none";
+  $("#trend").innerHTML = tr.map(card).join("");
+
+  $("#gt").textContent = q ? "🔍 "+q : (chip==="fav"||chip==="hist") ? t(chip) : tab;
+  const grouped = chip==="all" && !q && GROUPED_TABS.includes(tab);
+  let html;
+  if(tab==="COMING SOON" && !list.length) html=`<div class="empty">⏳ Coming Soon...</div>`;
+  else if(!list.length) html=`<div class="empty">${t("empty")}</div>`;
+  else html = grouped ? groupShows(list) : list.map(card).join("");
+  $("#grid").innerHTML = html;
+}
+
+/* ================= EPISODE MODAL ================= */
+let cur=null;
+function openEp(id, fromHash){
+  const e = eps.find(x=>x.id===id); if(!e||(e.hidden&&!isAdmin)) return; cur=id;
+  hist = [id,...hist.filter(x=>x!==id)].slice(0,50); sv("hist",hist);
+  if(!fromHash) history.replaceState(null,"","#ep="+id);
+  const my = rcount(id);
+  const st = $("#m").classList.contains("on") ? $("#sheet").scrollTop : 0;
+  $("#sheet").innerHTML = `
+    <span class="x" onclick="closeEp()">✕</span>
+    ${curShow?`<span class="x" style="float:left" onclick="openShow(curShow)">← ${esc(curShow)}</span>`:""}
+    <div style="clear:both"></div>
+    <div class="th"><img src="${esc(imgUrl(e.thumb)||ph(e.title))}" onerror="this.src='${ph(e.title)}'" alt=""></div>
+    <h3>${esc(e.title)}</h3>
+    <div class="meta">${seLabel(e)?esc(seLabel(e))+' · ':''}${e.hd?'HD · ':''}${fmtDate(e.date)} · 👁 ${e.views}</div>
+    <div class="btns">
+      <button class="btn" onclick="watchEp(${id})">${t("watch")}</button>
+      <button class="btn alt" onclick="dlEp(${id})">${t("dl")}</button>
+    </div>
+    <div class="btns">
+      <button class="btn alt" onclick="toggleFav(${id})">${favs.includes(id)?t("favDel"):t("favAdd")}</button>
+      <button class="btn alt" onclick="shareEp(${id})">${t("share")}</button>
+      <button class="btn alt" onclick="copyEp(${id})">${t("copy")}</button>
+    </div>
+    <b>${t("rate")} (⭐ ${avg(id)} · ${my})</b>
+    <div class="stars" id="stars">${[1,2,3,4,5].map(n=>`<span class="${n<=(myr[id]||0)?'on':''}" onclick="rateEp(${id},${n})">★</span>`).join("")}</div>
+    <h2 style="margin:14px 0 6px">${t("cm")}</h2>
+    <textarea id="ctext" rows="2" placeholder="${t("write")}"></textarea>
+    <button class="btn" style="margin-top:6px;width:100%" onclick="postCm(${id})">${t("post")}</button>
+    <div id="cmlist">${cmHtml(id)}</div>`;
+  $("#m").classList.add("on"); $("#sheet").scrollTop = st;
+  if(SB_ON) loadCms(id);
+}
+function closeEp(){curShow=null;$("#m").classList.remove("on");history.replaceState(null,"",location.pathname);render()}
+$("#m").addEventListener("click",ev=>{if(ev.target.id==="m")closeEp()});
+function cmHtml(id){return (cms[id]||[]).slice().reverse().map(c=>`<div class="cm"><b>${esc(c.n)}</b> <small>${fmtDate(c.d)}</small>${isAdmin&&SB_ON&&c.i?` <a style="color:#d32f2f;cursor:pointer" onclick="delCm(${id},${+c.i})">🗑</a>`:""}<br>${esc(c.t)}</div>`).join("")}
+// কমেন্ট: Supabase চালু থাকলে সবার জন্য শেয়ার্ড, নইলে শুধু এই ডিভাইসে
+async function loadCms(id){
+  try{
+    const r=await fetch(SB_URL+"/rest/v1/comments?eid=eq."+id+"&select=id,name,body,created_at&order=created_at.desc&limit=100",{headers:sbH()});
+    if(!r.ok)throw 0;
+    cms[id]=(await r.json()).reverse().map(x=>({i:x.id,n:x.name,t:x.body,d:Date.parse(x.created_at)}));
+    const el=$("#cmlist"); if(el&&cur===id)el.innerHTML=cmHtml(id);
+  }catch{}
+}
+async function postCm(id){
+  const v=$("#ctext").value.trim().slice(0,500); if(!v) return;
+  let n=ls("uname",null); if(!n){n=((prompt("Name / নাম")||"").trim()||"Guest").slice(0,30);sv("uname",n)}
+  if(SB_ON){
+    try{const r=await fetch(SB_URL+"/rest/v1/comments",{method:"POST",headers:sbH(null,{"Content-Type":"application/json",Prefer:"return=minimal"}),body:JSON.stringify({eid:id,name:n,body:v})}); if(!r.ok)throw 0}
+    catch{return toast("⚠️ কমেন্ট যায়নি")}
+    $("#ctext").value=""; return loadCms(id);
+  }
+  (cms[id]=cms[id]||[]).push({n,t:v,d:Date.now()}); sv("cms",cms);
+  $("#ctext").value=""; $("#cmlist").innerHTML=cmHtml(id);
+}
+async function delCm(eid,cid){
+  if(!confirm(t("sure")))return;
+  try{const r=await fetch(SB_URL+"/rest/v1/comments?id=eq."+cid,{method:"DELETE",headers:sbH(await sbTok())}); if(!r.ok)throw 0}
+  catch{return toast("⚠️ ডিলিট হয়নি (লগইন দেখুন)")}
+  loadCms(eid);
+}
+// রেটিং: Supabase চালু থাকলে সবার গড়, নইলে শুধু লোকাল
+async function loadRates(id){
+  try{
+    const r=await fetch(SB_URL+"/rest/v1/rating_stats?select=eid,avg,cnt"+(id?"&eid=eq."+id:""),{headers:sbH()});
+    if(!r.ok)throw 0;
+    (await r.json()).forEach(x=>{rstat[x.eid]={avg:x.avg,cnt:x.cnt}});
+  }catch{}
+}
+async function rateEp(id,n){
+  if(SB_ON){
+    try{
+      const r=await fetch(SB_URL+"/rest/v1/rpc/rate_ep",{method:"POST",headers:sbH(null,{"Content-Type":"application/json"}),body:JSON.stringify({p_eid:id,p_uid:UID,p_stars:n})});
+      if(!r.ok)throw 0;
+      myr[id]=n; sv("myr",myr); await loadRates(id);
+    }catch{return toast("⚠️ রেটিং যায়নি")}
+  } else {
+    const a=rates[id]=rates[id]||[], old=myr[id];
+    if(old){const i=a.indexOf(old); if(i>-1)a.splice(i,1)}
+    a.push(n); myr[id]=n; sv("rates",rates); sv("myr",myr);
+  }
+  toast("⭐ "+n); openEp(id,true);
+}
+function toggleFav(id){favs=favs.includes(id)?favs.filter(x=>x!==id):[...favs,id];sv("favs",favs);openEp(id,true)}
+/* ================= VIDEO: IndexedDB ================= */
+const idb=()=>new Promise((ok,no)=>{const r=indexedDB.open("nbd",1);r.onupgradeneeded=()=>r.result.createObjectStore("v");r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)});
+const vput=(k,b)=>idb().then(d=>new Promise((ok,no)=>{const x=d.transaction("v","readwrite");x.objectStore("v").put(b,k);x.oncomplete=ok;x.onerror=()=>no(x.error)}));
+const vget=k=>idb().then(d=>new Promise((ok,no)=>{const r=d.transaction("v").objectStore("v").get(k);r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)}));
+const vdel=k=>idb().then(d=>{d.transaction("v","readwrite").objectStore("v").delete(k)});
+
+/* ================= VIDEO: PLAYER ================= */
+const VID=/\.(mp4|webm|ogv|m4v|mov|m3u8)(\?|#|$)/i;
+const has=(e,l)=>!!(e.file&&e.file[l])||!!(e.watch&&safeUrl(e.watch[l])&&VID.test(safeUrl(e.watch[l])));
+let pl=null,hls=null,lastSave=0;
+async function srcFor(e,l){
+  if(e.file&&e.file[l]){try{const b=await vget("v:"+e.id+":"+l);if(b)return{u:URL.createObjectURL(b),blob:true}}catch{}}
+  const u=safeUrl(e.watch&&e.watch[l]); return u&&VID.test(u)?{u}:null;
+}
+function freePlayer(){if(hls){hls.destroy();hls=null} if(pl)pl.urls.forEach(u=>URL.revokeObjectURL(u)); pl=null}
+function attach(v,u){
+  if(/\.m3u8(\?|#|$)/i.test(u)&&!v.canPlayType("application/vnd.apple.mpegurl")){
+    const go=()=>{if(window.Hls&&Hls.isSupported()){hls=new Hls();hls.loadSource(u);hls.attachMedia(v)}else toast("⚠️ HLS সমর্থিত নয়")};
+    if(window.Hls)go(); else{const sc=document.createElement("script");sc.src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.17/hls.min.js";sc.onload=go;sc.onerror=()=>toast("⚠️ HLS লোড হয়নি");document.head.appendChild(sc)}
+  } else v.src=u;
+}
+async function openPlayer(id,l,keep){
+  const e=eps.find(x=>x.id===id); if(!e)return;
+  const s=await srcFor(e,l); if(!s){toast("⚠️ ভিডিও পাওয়া যায়নি");return}
+  freePlayer(); pl={id,lang:l,urls:[s.u]};
+  const langs=["bn","hi"].filter(x=>has(e,x)), sl=Object.keys(e.subs||{});
+  $("#psheet").innerHTML=`<span class="x" onclick="closePlayer()">✕</span><h3>${esc(e.title)}</h3>
+    <video id="vp" controls playsinline preload="metadata" poster="${esc(imgUrl(e.thumb)||ph(e.title))}"></video>
+    <div class="btns">
+      <button class="btn alt" onclick="seek(-10)">⏪ 10s</button><button class="btn alt" onclick="seek(10)">10s ⏩</button>
+      <button class="btn alt" id="spd" onclick="speed()">1x</button><button class="btn alt" onclick="fs()">⛶</button>
+    </div>
+    <div class="f"><label>🎧 Audio / ভাষা</label>
+      <select id="plng" onchange="switchLang(this.value)">${langs.map(x=>`<option value="${x}" ${x===l?"selected":""}>${LN[x]}</option>`).join("")}</select>
+      <label>💬 Subtitle</label>
+      <select id="psub" onchange="setSub(this.value)"><option value="">Off</option>${sl.map(x=>`<option value="${x}">${LN[x]||x}</option>`).join("")}</select></div>
+    <div class="btns"><button class="btn" onclick="dlEp(pl.id,pl.lang)">${t("dl")}</button></div>`;
+  const v=$("#vp");
+  v.addEventListener("loadedmetadata",()=>{const p=keep!=null?keep:(pos[id]||0); if(p>2&&p<v.duration-5)v.currentTime=p; if(keep!=null)v.play().catch(()=>{})},{once:true});
+  v.addEventListener("timeupdate",()=>{if(!v.duration)return;pos[id]=v.currentTime;prog[id]=Math.max(1,Math.min(100,Math.round(100*v.currentTime/v.duration)));if(Date.now()-lastSave>3000){lastSave=Date.now();sv("pos",pos);sv("prog",prog)}});
+  v.addEventListener("ended",()=>{prog[id]=100;pos[id]=0;sv("pos",pos);sv("prog",prog)});
+  v.addEventListener("error",()=>toast("⚠️ ভিডিও চালানো যাচ্ছে না (ফরম্যাট/লিংক দেখুন)"));
+  sl.forEach(k=>{const tr=document.createElement("track"),u=URL.createObjectURL(new Blob([e.subs[k]],{type:"text/vtt"}));pl.urls.push(u);tr.kind="subtitles";tr.label=LN[k]||k;tr.srclang=k;tr.src=u;v.appendChild(tr)});
+  $("#pm").classList.add("on"); attach(v,s.u);
+}
+function closePlayer(){
+  const v=$("#vp"); if(v){v.pause();sv("pos",pos);sv("prog",prog);v.removeAttribute("src");v.load()}
+  freePlayer(); $("#pm").classList.remove("on"); $("#psheet").innerHTML=""; render();
+}
+const seek=d=>{const v=$("#vp");if(v)v.currentTime=Math.max(0,Math.min(v.duration||1e9,v.currentTime+d))};
+function speed(){const v=$("#vp"),a=[1,1.25,1.5,2,.75],i=(a.indexOf(v.playbackRate)+1)%a.length;v.playbackRate=a[i];$("#spd").textContent=a[i]+"x"}
+function fs(){const v=$("#vp");(v.requestFullscreen||v.webkitRequestFullscreen||v.webkitEnterFullscreen||function(){}).call(v)}
+function setSub(l){[...$("#vp").textTracks].forEach(tr=>tr.mode=tr.language===l?"showing":"disabled")}
+function switchLang(l){const v=$("#vp");openPlayer(pl.id,l,v.currentTime)}
+$("#pm").addEventListener("click",ev=>{if(ev.target.id==="pm")closePlayer()});
+addEventListener("keydown",ev=>{
+  if(!$("#pm").classList.contains("on")||/INPUT|SELECT|TEXTAREA/.test(ev.target.tagName))return;
+  if(ev.key==="ArrowRight")seek(10); else if(ev.key==="ArrowLeft")seek(-10);
+  else if(ev.key===" "){ev.preventDefault();const v=$("#vp");v.paused?v.play():v.pause()}
+});
+
+/* ================= WATCH / DOWNLOAD ================= */
+function watchEp(id){
+  const e=eps.find(x=>x.id===id); e.views++; saveEps();
+  if(SB_ON)fetch(SB_URL+"/rest/v1/rpc/inc_view",{method:"POST",headers:sbH(null,{"Content-Type":"application/json"}),body:JSON.stringify({eid:id})}).catch(()=>{});
+  const pref=lang==="en"?"hi":lang, alt=pref==="bn"?"hi":"bn", l=[pref,alt].find(x=>has(e,x));
+  if(l) return openPlayer(id,l);
+  const u=safeUrl(lk(e,"watch")); u?openLink(u):toast("Watch link not set");
+}
+function dlUrl(u,name){const a=document.createElement("a");a.href=u;a.download=name;a.target="_blank";a.rel="noopener";document.body.appendChild(a);a.click();a.remove()}
+async function saveBlob(e,l){
+  try{const b=await vget("v:"+e.id+":"+l); if(!b)return toast("⚠️ ফাইল পাওয়া যায়নি");
+    const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=e.title.replace(/[\\/:*?"<>|]/g,"_")+"."+((b.type.split("/")[1]||"mp4").replace(/[^a-z0-9]/gi,""));
+    document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),30000);
+  }catch{toast("⚠️ ডাউনলোড হয়নি")}
+}
+async function dlEp(id,L){
+  const e=eps.find(x=>x.id===id), pref=lang==="en"?"hi":lang, alt=pref==="bn"?"hi":"bn";
+  for(const l of (L?[L]:[pref,alt])){
+    const u=safeUrl(e.dl&&e.dl[l]); if(u) return openLink(u);
+    if(e.file&&e.file[l]) return saveBlob(e,l);
+    const w=safeUrl(e.watch&&e.watch[l]); if(w&&VID.test(w)&&!/\.m3u8/i.test(w)) return dlUrl(w,e.title);
+  }
+  toast("Download link not set");
+}
+// চ্যানেল বাটন: Telegram অ্যাপের ভেতরে হলে টেলিগ্রামের নিজস্ব উপায়ে, নইলে নতুন ট্যাবে খোলে
+function chLink(a){openLink(a.href);return false}
+function openLink(u){
+  const tg=window.Telegram&&Telegram.WebApp;
+  if(tg&&tg.initData&&/^https:\/\/t\.me\//.test(u)) tg.openTelegramLink(u); else window.open(u,"_blank","noopener");
+}
+function epLink(id){return location.origin+location.pathname+"#ep="+id}
+function shareEp(id){
+  const e=eps.find(x=>x.id===id);
+  if(navigator.share) navigator.share({title:e.title,url:epLink(id)}).catch(()=>{}); else copyEp(id);
+}
+function copyEp(id){
+  const u=epLink(id);
+  (navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(()=>toast(t("copied"))).catch(()=>{prompt("Copy:",u)});
+}
+
+/* ================= SERIES (সব সিজন এক বক্সে) ================= */
+let curShow=null;
+function groupShows(list){
+  const m={};
+  list.forEach(e=>{(m[e.show]=m[e.show]||[]).push(e)});
+  const last=g=>Math.max(...g.map(x=>x.date));
+  return Object.keys(m).sort((a,b)=>last(m[b])-last(m[a])).map(n=>{
+    const g=m[n], f=g[0];
+    const seasons=new Set(g.map(x=>x.season||1)).size, views=g.reduce((s,x)=>s+x.views,0);
+    const arg=esc(JSON.stringify(n));
+    return `<div class="card" onclick="openShow(${arg})">
+      <div class="th"><img loading="lazy" src="${esc(imgUrl(f.thumb)||ph(n))}" onerror="this.src='${ph(n)}'" alt="">
+      <span class="hd">${seasons} ${t("s")}</span></div>
+      <div class="ci"><b>${esc(n)}</b><small>${seasons} ${t("s")} · ${g.length} ${t("e")}</small><small>👁 ${views} ${t("views")}</small></div></div>`;
+  }).join("");
+}
+let showSeason={};
+function pad(n){return String(n).padStart(2,"0")}
+function setSeason(n,sn){showSeason[n]=sn; openShow(n)}
+function openShow(n){
+  curShow=n; history.replaceState(null,"",location.pathname);
+  const g=V().filter(e=>e.show===n).sort((a,b)=>(a.season||1)-(b.season||1)||(a.ep||1)-(b.ep||1));
+  const ss=[...new Set(g.map(e=>e.season||1))];
+  const sn=ss.includes(showSeason[n])?showSeason[n]:ss[0];
+  const L=g.filter(e=>(e.season||1)===sn);
+  const arg=esc(JSON.stringify(n));
+  $("#sheet").innerHTML=`<span class="x" onclick="closeEp()">✕</span><h3>${esc(n)}</h3>
+    <div class="meta">${ss.length} ${t("s")} · ${g.length} ${t("e")}</div>
+    ${ss.length>1?`<select class="sel" onchange="setSeason(${arg},+this.value)">${ss.map(x=>`<option value="${x}" ${x===sn?"selected":""}>${t("s")} ${pad(x)}</option>`).join("")}</select>`:`<div class="meta"><b>${t("s")} ${pad(sn)}</b></div>`}
+    <div class="eg"><button class="on">All</button>${L.map(e=>`<button onclick="openEp(${e.id})">${pad(e.ep||1)}</button>`).join("")}</div>`+
+    L.map(e=>`<div class="er" onclick="openEp(${e.id})"><b>${t("e")} ${esc(e.ep||1)}</b> · ${esc(e.title)}<small>${langBadge(e)} 👁 ${e.views}</small></div>`).join("");
+  $("#m").classList.add("on");
+}
+
+/* ================= SUPABASE (সবার জন্য শেয়ার্ড ডেটা + ভিডিও আপলোড) ================= */
+// supabase-setup.sql চালানোর পর Project Settings → API থেকে এই দুটো বসান। ফাঁকা থাকলে সাইট আগের মতো শুধু লোকালি চলবে।
+const SB_URL = "";   // যেমন: https://abcdxyz.supabase.co
+const SB_KEY = "";   // anon public key
+const SB_ON = !!(SB_URL&&SB_KEY);
+let sbs = ls("sbs",null);
+const sbH=(tk,x)=>({apikey:SB_KEY,Authorization:"Bearer "+(tk||SB_KEY),...x});
+function sbSet(j){sbs={at:j.access_token,rt:j.refresh_token,exp:Date.now()+j.expires_in*1000};sv("sbs",sbs)}
+async function sbLogin(email,pw){
+  const r=await fetch(SB_URL+"/auth/v1/token?grant_type=password",{method:"POST",headers:{apikey:SB_KEY,"Content-Type":"application/json"},body:JSON.stringify({email,password:pw})});
+  if(!r.ok)return false; sbSet(await r.json()); return true;
+}
+async function sbTok(){
+  if(!sbs)throw 0;
+  if(Date.now()>sbs.exp-60000){
+    const r=await fetch(SB_URL+"/auth/v1/token?grant_type=refresh_token",{method:"POST",headers:{apikey:SB_KEY,"Content-Type":"application/json"},body:JSON.stringify({refresh_token:sbs.rt})});
+    if(!r.ok){sbs=null;sv("sbs",null);throw 0}
+    sbSet(await r.json());
+  }
+  return sbs.at;
+}
+// সার্ভারকে জিজ্ঞেস করে: এই টোকেনের ইউজার কি সত্যিই অ্যাডমিন? (ব্রাউজারের ডেটা বদলে ফাঁকি দেওয়া যায় না)
+async function sbIsAdmin(){
+  try{
+    const r=await fetch(SB_URL+"/rest/v1/rpc/is_admin",{method:"POST",headers:sbH(await sbTok(),{"Content-Type":"application/json"}),body:"{}"});
+    return r.ok && (await r.json())===true;
+  }catch{return false}
+}
+async function sbLoad(){
+  try{
+    let tk=null; if(sbs){try{tk=await sbTok()}catch{}}   // অ্যাডমিন লগইন থাকলে লুকানো ভিডিও সহ আনবে
+    const r=await fetch(SB_URL+"/rest/v1/eps?select=id,data,views&order=id.desc",{headers:sbH(tk)});
+    if(!r.ok)throw 0;
+    eps=(await r.json()).map(x=>({...x.data,id:x.id,views:x.views||0}));
+    normalize(); saveEps(); render(); if(m)openEp(+m[1],true);
+    loadRates().then(render);
+  }catch{}
+}
+async function sbUp(path,blob){
+  const tk=await sbTok();
+  return new Promise((ok,no)=>{
+    const x=new XMLHttpRequest(); x.open("POST",SB_URL+"/storage/v1/object/media/"+path);
+    x.setRequestHeader("apikey",SB_KEY); x.setRequestHeader("Authorization","Bearer "+tk); x.setRequestHeader("x-upsert","true");
+    if(blob.type)x.setRequestHeader("Content-Type",blob.type);
+    x.upload.onprogress=ev=>{const el=$("#up");if(el&&ev.lengthComputable)el.textContent="⏳ "+path.split("/").pop()+" — "+Math.round(100*ev.loaded/ev.total)+"%"};
+    x.onload=()=>x.status<300?ok(SB_URL+"/storage/v1/object/public/media/"+path):no(x.responseText);
+    x.onerror=()=>no("network"); x.send(blob);
+  });
+}
+async function sbRm(paths){
+  if(!paths||!paths.length)return;
+  try{const tk=await sbTok();await fetch(SB_URL+"/storage/v1/object/media",{method:"DELETE",headers:sbH(tk,{"Content-Type":"application/json"}),body:JSON.stringify({prefixes:paths})})}catch{}
+}
+async function sbDel(id){
+  const e=eps.find(x=>x.id===id), tk=await sbTok();
+  const r=await fetch(SB_URL+"/rest/v1/eps?id=eq."+id,{method:"DELETE",headers:sbH(tk)}); if(!r.ok)throw 0;
+  sbRm(e&&e.paths);
+}
+
+/* ================= ADMIN ================= */
+function openAdmin(){isAdmin?adminView():adminLogin();$("#am").classList.add("on")}
+function closeAdmin(){$("#am").classList.remove("on")}
+$("#am").addEventListener("click",ev=>{if(ev.target.id==="am")closeAdmin()});
+function adminLogin(){
+  $("#asheet").innerHTML=`<span class="x" onclick="closeAdmin()">✕</span><h3>${t("admin")}</h3>
+  <div class="f">${SB_ON?`<label>Email</label><input type="email" id="ae" autocomplete="username">`:""}<label>${t("pass")}</label><input type="password" id="ap" autocomplete="current-password"></div>
+  <button class="btn" style="width:100%;margin-top:10px" onclick="doLogin()">${t("login")}</button>`;
+}
+async function doLogin(){
+  if(SB_ON){
+    let ok=false; try{ok=await sbLogin($("#ae").value.trim(),$("#ap").value)}catch{}
+    // লগইন সফল হলেও সার্ভার নিজে নিশ্চিত করবে এই ইউজার অ্যাডমিন কিনা (is_admin)
+    if(ok&&await sbIsAdmin()){isAdmin=true;adminView();sbLoad()}
+    else{sbs=null;sv("sbs",null);toast(ok?"⛔ আপনি অ্যাডমিন নন":t("wrong"))}
+    return;
+  }
+  let h; try{h=await sha256($("#ap").value)}catch{return toast("⚠️ এই ব্রাউজারে লগইনের জন্য HTTPS পেজ দরকার")}
+  if(h===ADMIN_HASH){isAdmin=true;sv("isAdmin",true);adminView();render()}else toast(t("wrong"));
+}
+function doLogout(){
+  isAdmin=false; sv("isAdmin",false); sbs=null; sv("sbs",null); closeAdmin();
+  if(SB_ON) sbLoad(); else render();
+}
+function copySql(){
+  const em=$("#se").value.trim().toLowerCase();
+  if(!/^[^@\s'";\\]+@[^@\s'";\\]+\.[^@\s'";\\]+$/.test(em)) return toast("⚠️ সঠিক ইমেইল দিন");
+  const sql=$("#sqlsrc").textContent.replace(/YOUR_ADMIN_EMAIL@example\.com/g,()=>em);
+  const o=$("#sqlout"); o.value=sql; o.select();
+  (navigator.clipboard?navigator.clipboard.writeText(sql):Promise.reject()).then(()=>toast("SQL কপি হয়েছে ✅")).catch(()=>toast("বক্স থেকে নিজে কপি করুন"));
+}
+async function genHash(){
+  const p=$("#np").value; if(p.length<8) return toast("⚠️ কমপক্ষে ৮ অক্ষর দিন");
+  try{$("#nh").value='const ADMIN_HASH = "'+await sha256(p)+'";'; $("#nh").select()}catch{toast("⚠️ HTTPS পেজ দরকার")}
+}
+function adminView(){
+  $("#asheet").innerHTML=`<span class="x" onclick="closeAdmin()">✕</span><h3>${t("admin")}</h3>
+  ${SB_ON?"":`<div class="meta" style="border:1px solid var(--acc);border-radius:10px;padding:8px">⚠️ <b>লোকাল মোড:</b> Supabase সেট করা নেই, তাই আপনি যা যোগ করছেন (ভিডিও ফাইল, কমেন্ট, রেটিং, ভিউ) শুধু এই ডিভাইসের ব্রাউজারে থাকবে। সবাইকে দেখাতে হলে <b>Supabase সেট করুন</b>, অথবা লিংক-ভিত্তিক পর্ব <b>Export JSON</b> করে <code>episodes.json</code> নামে index.html এর পাশে রাখুন (আপলোড করা ভিডিও ফাইল এতে যায় না, শুধু লিংক যায়)।</div>
+  <div class="f"><label>🔑 নতুন পাসওয়ার্ডের হ্যাশ তৈরি (ডিফল্ট পাসওয়ার্ড বদলাতে)</label>
+    <input id="np" type="text" placeholder="নতুন পাসওয়ার্ড (৮+ অক্ষর)" autocomplete="off">
+    <button class="btn alt" style="width:100%;margin-top:6px" onclick="genHash()">হ্যাশ তৈরি করুন</button>
+    <input id="nh" readonly onclick="this.select()" placeholder="এই লাইনটা কপি করে ফাইলের ADMIN_HASH লাইনের জায়গায় বসান"></div>`}
+  <details><summary>🗄 Supabase সেটআপ (সবার জন্য সাইট চালু করতে)</summary>
+    <div class="meta" style="margin-top:6px">১) <b>supabase.com</b> এ প্রজেক্ট খুলুন → Authentication এ নতুন সাইন-আপ বন্ধ করে আপনার ইমেইল+পাসওয়ার্ডে ইউজার বানান।<br>২) নিচে সেই অ্যাডমিন ইমেইল দিয়ে "SQL তৈরি" চাপুন, তারপর Supabase → SQL Editor এ পেস্ট করে Run করুন।<br>৩) Project Settings → API থেকে URL ও anon key কপি করে এই ফাইলের <code>SB_URL</code> / <code>SB_KEY</code> তে বসান।</div>
+    <div class="f"><label>অ্যাডমিন ইমেইল</label><input id="se" type="email" placeholder="you@example.com" autocomplete="off">
+    <button class="btn alt" style="width:100%;margin-top:6px" onclick="copySql()">SQL তৈরি ও কপি</button>
+    <textarea id="sqlout" rows="6" readonly onclick="this.select()" placeholder="এখানে SQL আসবে"></textarea></div>
+  </details>
+  <div class="f">
+    <label>📚 সিরিজের নাম / Series (যেমন: Naruto) — মুভি/ফানি ভিডিও/রিল হলে ফাঁকা রাখুন</label><input id="a0" placeholder="Naruto">
+    <label>${t("ttl")}</label><input id="a1">
+    <label>${t("season")} (সিরিজে ফাঁকা = ১, মুভিতে ফাঁকা = দেখাবে না)</label><input id="a2" type="number" placeholder="ফাঁকা">
+    <label>${t("ep")} (সিরিজে ফাঁকা = অটো পরের নম্বর, মুভিতে ফাঁকা = দেখাবে না)</label><input id="a3" type="number" placeholder="অটো">
+    <label>${t("cat")}</label><select id="a4">${TABS.map(x=>`<option>${x}</option>`).join("")}</select>
+    <label>${t("thumb")}</label><input id="a5" placeholder="https://...">
+    <label>🇧🇩 বাংলা — ${t("wurl")}</label><input id="a6" placeholder="https://t.me/...">
+    <label>🇧🇩 বাংলা — ${t("durl")}</label><input id="a7" placeholder="https://t.me/...">
+    <label>🇮🇳 हिन्दी — ${t("wurl")}</label><input id="a8" placeholder="https://t.me/...">
+    <label>🇮🇳 हिन्दी — ${t("durl")}</label><input id="a9" placeholder="https://t.me/...">
+    <label>🎬 বাংলা ভিডিও ফাইল (আপলোড)</label><input id="a10" type="file" accept="video/*">
+    <label>🎬 हिन्दी ভিডিও ফাইল (আপলোড)</label><input id="a11" type="file" accept="video/*">
+    <label>🖼 থাম্বনেইল ছবি (ফাইল) — ফাঁকা রাখলে ভিডিও থেকে অটো নেবে</label><input id="a12" type="file" accept="image/*">
+    <label>💬 Subtitle বাংলা (.srt/.vtt)</label><input id="a13" type="file" accept=".srt,.vtt">
+    <label>💬 Subtitle English (.srt/.vtt)</label><input id="a14" type="file" accept=".srt,.vtt">
+    <label>💬 Subtitle हिन्दी (.srt/.vtt)</label><input id="a15" type="file" accept=".srt,.vtt">
+  </div>
+  <div id="up" class="meta"></div>
+  <button class="btn" style="width:100%;margin-top:10px" onclick="addEp()">${t("add")}</button>
+  <h2 style="margin:16px 0 6px">${t("list")} (${eps.length})</h2>
+  ${eps.slice().reverse().map(e=>`<div class="al"><span style="${e.hidden?"opacity:.5":""}">${e.hidden?"🙈 ":""}${esc(e.title)} <small>(${esc(e.cat)}${e.season?' S'+esc(e.season):''}${e.ep?' E'+esc(e.ep):''})</small></span><button class="btn alt" style="flex:none;min-width:0;padding:6px 10px;margin-right:6px" onclick="toggleHide(${e.id})">${e.hidden?"👁 Show":"🙈 Hide"}</button><button class="btn red" style="flex:none;min-width:0;padding:6px 10px" onclick="delEp(${e.id})">${t("del")}</button></div>`).join("")}
+  ${SB_ON?"":`<div class="btns"><button class="btn alt" onclick="exportEps()">⬆ Export JSON</button><button class="btn alt" onclick="document.getElementById('imp').click()">⬇ Import JSON</button></div>
+  <input type="file" id="imp" accept=".json,application/json" hidden onchange="importEps(this.files[0])">`}
+  <button class="btn alt" style="width:100%;margin-top:12px" onclick="doLogout()">${t("logout")}</button>`;
+}
+const toVtt=x=>{x=x.replace(/^\uFEFF/,"").replace(/\r/g,"");return /^WEBVTT/.test(x)?x:"WEBVTT\n\n"+x.replace(/(\d\d:\d\d:\d\d),(\d{3})/g,"$1.$2")};
+function cv(src,w,h){const k=Math.min(1,480/w),c=document.createElement("canvas");c.width=Math.round(w*k);c.height=Math.round(h*k);c.getContext("2d").drawImage(src,0,0,c.width,c.height);return c.toDataURL("image/jpeg",.72)}
+function imgData(f){return new Promise((ok,no)=>{const i=new Image(),u=URL.createObjectURL(f);i.onload=()=>{ok(cv(i,i.naturalWidth,i.naturalHeight));URL.revokeObjectURL(u)};i.onerror=no;i.src=u})}
+function grab(f){return new Promise((ok,no)=>{const v=document.createElement("video"),u=URL.createObjectURL(f);v.muted=true;v.preload="metadata";v.src=u;v.onloadedmetadata=()=>{v.currentTime=Math.min(2,(v.duration||2)/2)};v.onseeked=()=>{try{ok(cv(v,v.videoWidth,v.videoHeight))}catch(x){no(x)}URL.revokeObjectURL(u)};v.onerror=no})}
+async function addEp(){
+  const title=$("#a1").value.trim(); if(!title) return toast("⚠️ "+t("ttl"));
+  if(["a5","a6","a7","a8","a9"].some(k=>{const u=$("#"+k).value.trim();return u&&!safeUrl(u)})) return toast("⚠️ URL ভুল (https://...)");
+  if(SB_ON&&!sbs) return toast("⚠️ আবার লগইন করুন");
+  const F=k=>$("#"+k).files[0], id=Date.now(), file={}, subs={}, paths=[];
+  const W={bn:$("#a6").value.trim(),hi:$("#a8").value.trim()}, D={bn:$("#a7").value.trim(),hi:$("#a9").value.trim()};
+  const ext=f=>(f.name.split(".").pop()||"mp4").toLowerCase().replace(/[^a-z0-9]/g,"")||"mp4";
+  let thumb=$("#a5").value.trim();
+  toast("⏳ সেভ হচ্ছে...");
+  try{
+    for(const [k,l] of [["a10","bn"],["a11","hi"]]) if(F(k)){
+      if(SB_ON){const p=id+"/"+l+"."+ext(F(k)); W[l]=await sbUp(p,F(k)); paths.push(p); D[l]=W[l]+"?download="+encodeURIComponent(title+"."+ext(F(k)))}
+      else{await vput("v:"+id+":"+l,F(k));file[l]=true}
+    }
+    for(const [k,l] of [["a13","bn"],["a14","en"],["a15","hi"]]) if(F(k)) subs[l]=toVtt(await F(k).text());
+    if(F("a12")) thumb=await imgData(F("a12")).catch(()=>thumb);
+    else if(!thumb&&(F("a10")||F("a11"))) thumb=await grab(F("a10")||F("a11")).catch(()=>"");
+    if(SB_ON&&thumb.startsWith("data:")){const p=id+"/thumb.jpg"; thumb=await sbUp(p,await (await fetch(thumb)).blob()); paths.push(p)}
+  }catch{
+    Object.keys(file).forEach(l=>vdel("v:"+id+":"+l)); sbRm(paths);
+    return toast("⚠️ আপলোড ব্যর্থ (লগইন / ফাইল সাইজ লিমিট / নেটওয়ার্ক দেখুন)");
+  }
+  const showName=$("#a0").value.trim()||title, isMovie=FLAT_TABS.includes($("#a4").value);
+  let SN=+$("#a2").value||null, EN=+$("#a3").value||null;
+  if(!isMovie){
+    SN=SN||1;
+    if(!EN) EN=Math.max(0,...eps.filter(x=>x.show===showName&&(x.season||1)===SN).map(x=>x.ep||0))+1;
+  }
+  const ep={id,title,show:showName,season:SN,ep:EN,v2:true,cat:$("#a4").value,thumb,
+    watch:W,dl:D,file,subs,paths,date:Date.now(),views:0,hd:true};
+  if(SB_ON){
+    try{const r=await fetch(SB_URL+"/rest/v1/eps",{method:"POST",headers:sbH(await sbTok(),{"Content-Type":"application/json",Prefer:"return=minimal"}),body:JSON.stringify({id,data:ep})});
+      if(!r.ok)throw 0}catch{sbRm(paths);return toast("⚠️ সার্ভারে সেভ হয়নি")}
+  }
+  eps.push(ep); saveEps(); toast(t("done")); adminView(); render();
+}
+async function toggleHide(id){
+  const e=eps.find(x=>x.id===id); if(!e)return;
+  const nv=!e.hidden;
+  if(SB_ON){
+    try{const tk=await sbTok(); const d={...e,hidden:nv}; delete d.views; delete d.id;
+      const r=await fetch(SB_URL+"/rest/v1/eps?id=eq."+id,{method:"PATCH",headers:sbH(tk,{"Content-Type":"application/json",Prefer:"return=minimal"}),body:JSON.stringify({data:d})}); if(!r.ok)throw 0}
+    catch{return toast("⚠️ সেভ হয়নি (লগইন দেখুন)")}
+  }
+  e.hidden=nv; saveEps(); toast(nv?"🙈 লুকানো হয়েছে":"👁 দেখানো হবে"); adminView(); render();
+}
+async function delEp(id){
+  if(!confirm(t("sure")))return;
+  if(SB_ON){try{await sbDel(id)}catch{return toast("⚠️ ডিলিট হয়নি (লগইন দেখুন)")}}
+  eps=eps.filter(e=>e.id!==id); dels.push(id); sv("dels",dels); ["bn","hi"].forEach(l=>vdel("v:"+id+":"+l).catch(()=>{})); favs=favs.filter(x=>x!==id); hist=hist.filter(x=>x!==id);
+  saveEps(); sv("favs",favs); sv("hist",hist); adminView(); render();
+}
+
+/* ================= INIT ================= */
+if(SB_ON) isAdmin=false;
+document.body.classList.toggle("dark",dark);
+try{const tg=window.Telegram&&Telegram.WebApp;if(tg){tg.ready();tg.expand()}}catch{}
+applyLang(); buildTabs(); buildChips(); render();
+const m=location.hash.match(/ep=(\d+)/); if(m) openEp(+m[1],true);
+addEventListener("hashchange",()=>{const h=location.hash.match(/ep=(\d+)/);if(h)openEp(+h[1],true)});
+addEventListener("keydown",ev=>{if(ev.key==="Escape"){if($("#pm").classList.contains("on")){closePlayer();return}closeAdmin();if($("#m").classList.contains("on"))closeEp()}});
+if(SB_ON){
+  // Supabase মোডে ব্রাউজারে সেভ করা isAdmin কখনো বিশ্বাস করা হয় না — সার্ভার যাচাই করলেই অ্যাডমিন
+  isAdmin=false;
+  (sbs?sbIsAdmin():Promise.resolve(false)).then(v=>{isAdmin=v; if(sbs&&!v){sbs=null;sv("sbs",null)} sbLoad()});
+}
+// সব ভিজিটরের জন্য: index.html এর পাশে episodes.json রাখলে সেটি অটো লোড হবে
+if(!SB_ON)fetch("episodes.json",{cache:"no-cache"}).then(r=>r.ok?r.json():[]).then(d=>{
+  if(Array.isArray(d)&&d.length){const n=eps.length;mergeEps(d);if(eps.length!==n){saveEps();render();if(m)openEp(+m[1],true)}}
+}).catch(()=>{});
+</script>
+</body>
+</html>
