@@ -611,8 +611,8 @@ function openShow(n){
 
 /* ================= SUPABASE (সবার জন্য শেয়ার্ড ডেটা + ভিডিও আপলোড) ================= */
 // supabase-setup.sql চালানোর পর Project Settings → API থেকে এই দুটো বসান। ফাঁকা থাকলে সাইট আগের মতো শুধু লোকালি চলবে।
-const SB_URL = "";   // যেমন: https://abcdxyz.supabase.co
-const SB_KEY = "";   // anon public key
+const SB_URL = "https://fhrrvtyychmkwfuzsgrf.supabase.co";   // যেমন: https://abcdxyz.supabase.co
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZocnJ2dHl5Y2hta3dmdXpzZ3JmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUxNDE3NTgsImV4cCI6MjExMDcxNzc1OH0.svK0mj_p36P23I-KpHWesc9zxOOP-PTvxd8pzy2fRI4";   // anon public key
 const SB_ON = !!(SB_URL&&SB_KEY);
 let sbs = ls("sbs",null);
 const sbH=(tk,x)=>({apikey:SB_KEY,Authorization:"Bearer "+(tk||SB_KEY),...x});
